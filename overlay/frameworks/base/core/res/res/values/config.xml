@@ -317,4 +317,6 @@
          kept open for multiple APDU commands within one session.-->
     <bool name="euicc_optimize_apdu_sender">true</bool>
 
+    <!-- Whether device supports increased touch sensitvity -->
+    <bool name="config_supportGloveMode">true</bool>
 </resources>
