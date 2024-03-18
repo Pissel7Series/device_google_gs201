@@ -13,6 +13,11 @@ DISABLE_ARTIFACT_PATH_REQUIREMENTS := true
 TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_DEADLINE := true
 TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_TOGGLE := false
 
+TARGET_FORCE_PREBUILT_KERNEL := true
+TARGET_KERNEL_CONFIG := cloudripper_gki_defconfig
+TARGET_NO_KERNEL_OVERRIDE := true
+TARGET_KERNEL_SOURCE := kernel/google/pantah/cheetah
+
 # Manifests
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += vendor/infinity/config/device_framework_matrix.xml
 DEVICE_MANIFEST_FILE += device/google/gs201/android.hardware.security.rkp-service.citadel.xml
