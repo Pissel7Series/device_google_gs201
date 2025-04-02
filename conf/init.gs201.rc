@@ -583,6 +583,8 @@ on property:sys.boot_completed=1
     write /proc/sys/vm/swappiness 60
     
     write /sys/kernel/vendor_mm/kswapd_cpu_affinity 7f
+    
+    write /sys/kernel/vendor_mm/kcompactd_cpu_affinity 7f
 
     # Adjust watermark level
     write /proc/sys/vm/watermark_scale_factor 200
