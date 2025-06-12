@@ -318,7 +318,32 @@ on post-fs-data
 on zygote-start
     # For PixelLogger configuration file.
     chmod 0771 /data/vendor/wifi
+    write /proc/vendor_sched/groups/ta/uclamp_min 1
+    write /proc/vendor_sched/groups/fg/uclamp_min 0
     write /proc/vendor_sched/groups/sys/uclamp_min 0
+    write /proc/vendor_sched/groups/ta/preferred_idle_mask_low 0x03e
+    write /proc/vendor_sched/groups/ta/preferred_idle_mask_mid 0x0f0
+    write /proc/vendor_sched/groups/ta/preferred_idle_mask_high 0x0f0
+    write /proc/vendor_sched/groups/ta/prefer_idle 1
+    write /proc/vendor_sched/groups/fg/preferred_idle_mask_low 0x03e
+    write /proc/vendor_sched/groups/fg/preferred_idle_mask_mid 0x0f0
+    write /proc/vendor_sched/groups/fg/preferred_idle_mask_high 0x0f0
+    write /proc/vendor_sched/groups/fg/prefer_idle 1
+    write /proc/vendor_sched/groups/sys/preferred_idle_mask_low 0x03e
+    write /proc/vendor_sched/groups/sys/preferred_idle_mask_mid 0x0f0
+    write /proc/vendor_sched/groups/sys/preferred_idle_mask_high 0x0f0
+    write /proc/vendor_sched/groups/sys/prefer_idle 1
+
+    write /proc/vendor_sched/groups/bg/ug 0
+    write /proc/vendor_sched/groups/sys_bg/ug 0
+    write /proc/vendor_sched/groups/ota/ug 0
+    write /proc/vendor_sched/groups/dex2oat/ug 1
+    write /proc/vendor_sched/groups/ta/ug 2
+    write /proc/vendor_sched/groups/fg/ug 2
+    write /proc/vendor_sched/groups/nnapi/ug 2
+    write /proc/vendor_sched/groups/rt/ug 2
+    write /proc/vendor_sched/groups/sf/ug 2
+    write /proc/vendor_sched/groups/sys/ug 2
 
 on post-fs-data
     # Create the directories used by the Wireless subsystem
@@ -421,6 +446,8 @@ on boot
     chown audioserver system /sys/devices/platform/17c50000.abox/0.abox_debug/calliope_dram
     chown audioserver system /sys/devices/platform/17c50000.abox/0.abox_debug/calliope_iva
     chown audioserver system /sys/kernel/debug/abox/log-00
+    
+    write /proc/vendor_sched/sched_lib_mask_out 0xff
 
 # Permission for USB SELECT
     chown system system /sys/class/android_usb/android0/enable
@@ -597,6 +624,17 @@ on property:sys.boot_completed=1
     write /sys/devices/platform/17000010.devfreq_mif/devfreq/17000010.devfreq_mif/exynos_data/cancel_boot_freq 1
     write /sys/devices/platform/17000020.devfreq_int/devfreq/17000020.devfreq_int/exynos_data/cancel_boot_freq 1
 
+    # Restore prefer idle
+    write /proc/vendor_sched/groups/ta/preferred_idle_mask_low 0x7f
+    write /proc/vendor_sched/groups/ta/preferred_idle_mask_mid 0x7f
+    write /proc/vendor_sched/groups/ta/preferred_idle_mask_high 0x7f
+    write /proc/vendor_sched/groups/fg/preferred_idle_mask_low 0xff
+    write /proc/vendor_sched/groups/fg/preferred_idle_mask_mid 0xff
+    write /proc/vendor_sched/groups/fg/preferred_idle_mask_high 0xff
+    write /proc/vendor_sched/groups/sys/preferred_idle_mask_low 0xff
+    write /proc/vendor_sched/groups/sys/preferred_idle_mask_mid 0xff
+    write /proc/vendor_sched/groups/sys/preferred_idle_mask_high 0xff
+
     # Setup final cpuset
     write /dev/cpuset/top-app/cpus ${persist.device_config.vendor_system_native.top-app_cpuset:-0-7}
     write /dev/cpuset/foreground/cpus ${persist.device_config.vendor_system_native.foreground_cpuset:-0-3,4-5}
@@ -608,10 +646,15 @@ on property:sys.boot_completed=1
     setprop vendor.powerhal.init 1
 
     # Set uclamp.max for some groups, which could indicate cpu importance used in scheduling
-    write /proc/vendor_sched/groups/bg/uclamp_max 512
+    write /proc/vendor_sched/auto_uclamp_max "130 130 130 130 512 512 512 512"
+    write /proc/vendor_sched/groups/bg/uclamp_max 130
     write /proc/vendor_sched/groups/sys_bg/uclamp_max 512
     write /proc/vendor_sched/groups/ota/uclamp_max 512
-    write /proc/vendor_sched/groups/dex2oat/uclamp_max 615
+    write /proc/vendor_sched/groups/dex2oat/uclamp_max -2
+    
+    write /proc/vendor_sched/uclamp_max_filter_divider 4
+    write /proc/vendor_sched/uclamp_max_filter_rt 16
+    write /proc/vendor_sched/uclamp_max_filter_enable 1
 
     # Set PMU freq limit parameters
     write /sys/devices/system/cpu/cpufreq/policy0/sched_pixel/lcpi_threshold 2
